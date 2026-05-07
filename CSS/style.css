@@ -1,0 +1,186 @@
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: radial-gradient(circle at top, #0d1b2a, #000);
+  color: #fff;
+  margin: 0;
+  padding: 0;
+}
+
+header {
+  background: #1b263b;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header h1 {
+  margin: 0;
+  color: #00aaff;
+}
+
+nav a {
+  margin: 0 1rem;
+  color: #e0e1dd;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+nav a:hover {
+  color: #00aaff;
+}
+
+.game-area {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 2rem;
+  margin: 2rem auto;
+  flex-wrap: wrap;
+}
+
+.board {
+  position: relative;
+  width: 320px;
+  height: 320px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 0 30px rgba(255,255,255,0.2);
+}
+
+.color {
+  cursor: pointer;
+  transition: opacity 0.3s, transform 0.2s;
+}
+
+.color:hover {
+  opacity: 0.8;
+  transform: scale(1.05);
+}
+
+.green { background: #2ecc71; }
+.red { background: #e74c3c; }
+.yellow { background: #f1c40f; }
+.blue { background: #3498db; }
+
+.center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #1b263b;
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+}
+
+#start, #restart {
+  background: #00aaff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background 0.3s;
+}
+
+#start:hover, #restart:hover {
+  background: #0077cc;
+}
+
+.scoreboard {
+  background: #1b263b;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.5);
+  min-width: 200px;
+}
+
+.scoreboard h2 {
+  color: #00aaff;
+}
+
+.instructions, .ranking, .sobre {
+  margin: 2rem auto;
+  max-width: 600px;
+  background: #0d1b2a;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.5);
+}
+
+.instructions h2, .ranking h2, .sobre h2 {
+  color: #00aaff;
+}
+
+.ranking ol {
+  padding-left: 1.5rem;
+  color: #fff;
+}
+
+.sobre p {
+  color: #ccc;
+  line-height: 1.5;
+}
+
+.note {
+  margin-top: 1rem;
+  font-style: italic;
+  color: #ccc;
+}
+
+footer {
+  background: #1b263b;
+  padding: 1rem;
+  margin-top: 2rem;
+  font-size: 0.9rem;
+  color: #aaa;
+}
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.overlay-content {
+  background: #1b263b;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(255,255,255,0.3);
+}
+
+.overlay-content h2 {
+  color: #e74c3c;
+  margin-bottom: 1rem;
+}
+
+.overlay-content button {
+  background: #00aaff;
+  border: none;
+  padding: 0.7rem 1.2rem;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.overlay-content button:hover {
+  background: #0077cc;
+}

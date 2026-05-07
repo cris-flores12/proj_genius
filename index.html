@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jogo Genius</title>
+  <link rel="stylesheet" href="CSS/style.css">
+</head>
+<body>
+  <header>
+    <h1>Jogo Genius</h1>
+    <nav>
+      <a href="#inicio">Início</a>
+      <a href="#como-jogar">Como Jogar</a>
+      <a href="#ranking">Ranking</a>
+      <a href="#sobre">Sobre</a>
+    </nav>
+  </header>
+
+  <main id="inicio">
+    <section class="game-area">
+      <div class="board">
+        <div class="color green" data-color="green"></div>
+        <div class="color red" data-color="red"></div>
+        <div class="color yellow" data-color="yellow"></div>
+        <div class="color blue" data-color="blue"></div>
+        <div class="center">
+          <span>GENIUS</span>
+          <button id="start">Iniciar Jogo</button>
+          <button id="restart" style="display:none;">Reiniciar</button>
+        </div>
+      </div>
+      <aside class="scoreboard">
+        <h2>PLACAR</h2>
+        <p><strong>Rodada:</strong> <span id="round">0</span></p>
+        <p><strong>Pontos:</strong> <span id="score">0</span></p>
+        <h3>MENSAGEM</h3>
+        <p id="message">Clique em iniciar para jogar!</p>
+      </aside>
+    </section>
+    <section id="como-jogar" class="instructions">
+      <h2>COMO JOGAR</h2>
+      <ol>
+        <li>Clique em “Iniciar Jogo” para começar.</li>
+        <li>Observe a sequência de cores.</li>
+        <li>Repita a sequência clicando nas cores.</li>
+        <li>Cada rodada adiciona uma nova cor.</li>
+        <li>Errou? O jogo termina!</li>
+      </ol>
+      <p class="note">
+        Observe a sequência de cores que o jogo vai mostrar.<br>
+        Depois, repita clicando nas cores na mesma ordem!
+      </p>
+    </section>
+    <section id="ranking" class="ranking">
+      <h2>Ranking</h2>
+      <ol id="ranking-list"></ol>
+    </section>
+    <section id="sobre" class="sobre">
+      <h2>Sobre</h2>
+      <p>
+        O Jogo Genius é um projeto desenvolvido na disciplina <strong>Programação Website I</strong>, 
+        com o objetivo de aplicar conceitos de HTML, CSS e JavaScript em um jogo de memória interativo.
+      </p>
+      <p>
+        Desenvolvido por Cristian © 2026.
+      </p>
+    </section>
+  </main>
+<div id="game-over" class="overlay" style="display:none;">
+  <div class="overlay-content">
+    <h2>Game Over!</h2>
+    <p>Sua pontuação final: <span id="final-score">0</span></p>
+    <p>Maior pontuação: <span id="high-score">0</span></p>
+    <label for="player-name">Digite seu nome:</label>
+    <input type="text" id="player-name" placeholder="Seu nome">
+
+    <button id="play-again">Jogar Novamente</button>
+    
+  </div>
+</div>
+
+
+  <footer>
+    <p>© 2026 Jogo Genius — Desenvolvido para Programação Website I</p>
+  </footer>
+
+  <script src="Script/script.js"></script>
+</body>
+</html>
+
