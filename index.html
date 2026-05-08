@@ -1,91 +1,97 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jogo Genius</title>
-  <link rel="stylesheet" href="CSS/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo Genius | Programação Website I</title>
+    <link rel="stylesheet" href="CSS/style.css">
 </head>
 <body>
-  <header>
-    <h1>Jogo Genius</h1>
-    <nav>
-      <a href="#inicio">Início</a>
-      <a href="#como-jogar">Como Jogar</a>
-      <a href="#ranking">Ranking</a>
-      <a href="#sobre">Sobre</a>
-    </nav>
-  </header>
-
-  <main id="inicio">
-    <section class="game-area">
-      <div class="board">
-        <div class="color green" data-color="green"></div>
-        <div class="color red" data-color="red"></div>
-        <div class="color yellow" data-color="yellow"></div>
-        <div class="color blue" data-color="blue"></div>
-        <div class="center">
-          <span>GENIUS</span>
-          <button id="start">Iniciar Jogo</button>
-          <button id="restart" style="display:none;">Reiniciar</button>
+    <nav class="navbar">
+        <div class="logo">
+            <span class="icon">🧠</span> Jogo <span>Genius</span>
         </div>
-      </div>
-      <aside class="scoreboard">
-        <h2>PLACAR</h2>
-        <p><strong>Rodada:</strong> <span id="round">0</span></p>
-        <p><strong>Pontos:</strong> <span id="score">0</span></p>
-        <h3>MENSAGEM</h3>
-        <p id="message">Clique em iniciar para jogar!</p>
-      </aside>
-    </section>
-    <section id="como-jogar" class="instructions">
-      <h2>COMO JOGAR</h2>
-      <ol>
-        <li>Clique em “Iniciar Jogo” para começar.</li>
-        <li>Observe a sequência de cores.</li>
-        <li>Repita a sequência clicando nas cores.</li>
-        <li>Cada rodada adiciona uma nova cor.</li>
-        <li>Errou? O jogo termina!</li>
-      </ol>
-      <p class="note">
-        Observe a sequência de cores que o jogo vai mostrar.<br>
-        Depois, repita clicando nas cores na mesma ordem!
-      </p>
-    </section>
-    <section id="ranking" class="ranking">
-      <h2>Ranking</h2>
-      <ol id="ranking-list"></ol>
-    </section>
-    <section id="sobre" class="sobre">
-      <h2>Sobre</h2>
-      <p>
-        O Jogo Genius é um projeto desenvolvido na disciplina <strong>Programação Website I</strong>, 
-        com o objetivo de aplicar conceitos de HTML, CSS e JavaScript em um jogo de memória interativo.
-      </p>
-      <p>
-        Desenvolvido por Cristian © 2026.
-      </p>
-    </section>
-  </main>
-<div id="game-over" class="overlay" style="display:none;">
-  <div class="overlay-content">
-    <h2>Game Over!</h2>
-    <p>Sua pontuação final: <span id="final-score">0</span></p>
-    <p>Maior pontuação: <span id="high-score">0</span></p>
-    <label for="player-name">Digite seu nome:</label>
-    <input type="text" id="player-name" placeholder="Seu nome">
+        <div class="nav-links">
+            <a href="#" class="active">Início</a>
+            <a href="#">Como Jogar</a>
+            <a href="#">Ranking</a>
+            <a href="#">Sobre</a>
+        </div>
+        <div class="nav-actions">
+            <button id="theme-toggle">🌙</button>
+            <button id="start-btn">▶ Iniciar Jogo</button>
+        </div>
+    </nav>
 
-    <button id="play-again">Jogar Novamente</button>
-    
-  </div>
-</div>
+    <main class="container">
+        <section class="board-section">
+            <div class="genius-board" id="genius-board">
+                <div class="color-btn green" data-color="0"></div>
+                <div class="color-btn red" data-color="1"></div>
+                <div class="color-btn yellow" data-color="2"></div>
+                <div class="color-btn blue" data-color="3"></div>
+                <div class="center-circle">
+                    <h2>GENIUS</h2>
+                    <span class="center-icon">🧠</span>
+                </div>
+            </div>
+            
+            <div class="hint-box">
+                <span class="hint-icon">💡</span>
+                <p>Observe a sequência de cores que o jogo vai mostrar.<br>Depois, repita clicando nas cores na mesma ordem!</p>
+            </div>
+        </section>
 
+        <aside class="info-section">
+            <div class="panel score-panel">
+                <div class="panel-header">
+                    <span class="panel-icon">🏆</span> PLACAR
+                </div>
+                <div class="score-display">
+                    <div class="score-item">
+                        <span>RODADA</span>
+                        <strong id="round-display">00</strong>
+                    </div>
+                    <div class="score-item">
+                        <span>PONTOS</span>
+                        <strong id="score-display">0</strong>
+                    </div>
+                    <div class="score-item">
+                        <span>RECORDE</span>
+                        <strong id="highscore-display">0</strong>
+                    </div>
+                </div>
+            </div>
 
-  <footer>
-    <p>© 2026 Jogo Genius — Desenvolvido para Programação Website I</p>
-  </footer>
+            <div class="panel message-panel">
+                <div class="panel-header">
+                    <span class="panel-icon">💬</span> MENSAGEM
+                </div>
+                <div id="message-box" class="message-box neutral">
+                    Clique em "Iniciar Jogo" para começar!
+                </div>
+                <button id="restart-btn" class="hidden">🔄 Reiniciar Jogo</button>
+            </div>
 
-  <script src="Script/script.js"></script>
+            <div class="panel instructions-panel">
+                <div class="panel-header">
+                    <span class="panel-icon">❓</span> COMO JOGAR
+                </div>
+                <ul class="instructions-list">
+                    <li><span class="step-num">1</span> Clique em "Iniciar Jogo" para começar.</li>
+                    <li><span class="step-num">2</span> Observe a sequência de cores.</li>
+                    <li><span class="step-num">3</span> Repita a sequência clicando nas cores.</li>
+                    <li><span class="step-num">4</span> Cada rodada adiciona uma nova cor.</li>
+                    <li><span class="step-num">5</span> Errou? O jogo termina!</li>
+                </ul>
+            </div>
+        </aside>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Jogo Genius. Desenvolvido para Programação Website I.</p>
+    </footer>
+
+    <script src="Script/script.js"></script>
 </body>
 </html>
-

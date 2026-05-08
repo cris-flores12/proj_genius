@@ -1,178 +1,181 @@
-const colors = ["green", "red", "yellow", "blue"];
-let sequence = [];
-let playerSequence = [];
-let round = 0;
+// Variáveis de Estado do Jogo
+let order = [];
+let clickedOrder = [];
 let score = 0;
-let highScore = localStorage.getItem("highScore") || 0;
+let round = 0;
+let isAcceptingInput = false;
 
-const startBtn = document.getElementById("start");
-const restartBtn = document.getElementById("restart");
-const message = document.getElementById("message");
-const roundDisplay = document.getElementById("round");
-const scoreDisplay = document.getElementById("score");
+// Elementos do DOM
+const board = document.getElementById('genius-board');
+const blue = document.querySelector('.blue');
+const red = document.querySelector('.red');
+const green = document.querySelector('.green');
+const yellow = document.querySelector('.yellow');
+const startBtn = document.getElementById('start-btn');
+const restartBtn = document.getElementById('restart-btn');
+const roundDisplay = document.getElementById('round-display');
+const scoreDisplay = document.getElementById('score-display');
+const highscoreDisplay = document.getElementById('highscore-display');
+const messageBox = document.getElementById('message-box');
 
-const gameOverScreen = document.getElementById("game-over");
-const finalScore = document.getElementById("final-score");
-const highScoreDisplay = document.getElementById("high-score");
-const playAgainBtn = document.getElementById("play-again");
-const playerNameInput = document.getElementById("player-name");
-const exitBtn = document.getElementById("exit-game");
-const rankingList = document.getElementById("ranking-list");
+// Mapeamento de cores para os botões
+const colors = [green, red, yellow, blue];
 
-// 🎵 Sons gerados via Web Audio API
+// Desafio 1: Sistema de Sons usando Web Audio API (Não requer arquivos MP3)
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-const soundFrequencies = {
-  green: 329.63,
-  red: 261.63,
-  yellow: 220.00,
-  blue: 392.00
-};
+const frequencies = [329.63, 261.63, 277.18, 415.30]; // E4, C4, C#4, G#4 (Frequências clássicas)
 
-// Retoma o áudio apenas uma vez
-document.body.addEventListener("click", () => {
-  if (audioCtx.state === "suspended") {
-    audioCtx.resume();
-  }
-}, { once: true });
-
-function playSound(color) {
-  const oscillator = audioCtx.createOscillator();
-  const gainNode = audioCtx.createGain();
-
-  oscillator.connect(gainNode);
-  gainNode.connect(audioCtx.destination);
-
-  oscillator.type = "sine";
-  oscillator.frequency.value = soundFrequencies[color];
-  gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
-
-  oscillator.start();
-  oscillator.stop(audioCtx.currentTime + 0.3);
+function playSound(colorIndex) {
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    
+    oscillator.type = 'sine';
+    // Se for erro (índice 4), toca som grave, senão toca a frequência da cor
+    oscillator.frequency.value = colorIndex === 4 ? 100 : frequencies[colorIndex];
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    
+    oscillator.start();
+    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.5);
+    oscillator.stop(audioCtx.currentTime + 0.5);
 }
 
-function playErrorSound() {
-  const oscillator = audioCtx.createOscillator();
-  const gainNode = audioCtx.createGain();
-
-  oscillator.connect(gainNode);
-  gainNode.connect(audioCtx.destination);
-
-  oscillator.type = "sawtooth";
-  oscillator.frequency.value = 120;
-  gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-
-  oscillator.start();
-  oscillator.stop(audioCtx.currentTime + 0.5);
+// Lógica de Início de Jogo
+const playGame = () => {
+    order = [];
+    clickedOrder = [];
+    score = 0;
+    round = 0;
+    updateScoreboard();
+    restartBtn.classList.add('hidden');
+    startBtn.disabled = true;
+    startBtn.style.opacity = '0.5';
+    board.classList.add('active'); // Ativa cliques
+    nextLevel();
 }
 
-// Eventos
-startBtn.addEventListener("click", startGame);
-restartBtn.addEventListener("click", startGame);
-playAgainBtn.addEventListener("click", () => {
-  gameOverScreen.style.display = "none";
-  startGame();
-});
-exitBtn.addEventListener("click", () => {
-  gameOverScreen.style.display = "none";
-  message.textContent = "Você saiu do jogo.";
-  restartBtn.style.display = "none";
-});
-
-// Funções principais
-function startGame() {
-  sequence = [];
-  playerSequence = [];
-  round = 0;
-  score = 0;
-  message.textContent = "Observe a sequência!";
-  scoreDisplay.textContent = score;
-  roundDisplay.textContent = round;
-  restartBtn.style.display = "inline-block";
-  gameOverScreen.style.display = "none";
-  nextRound();
+// Avança para o próximo nível
+const nextLevel = () => {
+    round++;
+    // Desafio 2: Pontuação (Ex: 50 pontos por rodada completada)
+    if(round > 1) score += 50; 
+    
+    updateScoreboard();
+    showMessage(`Rodada ${round}! Atenção à sequência...`, 'neutral');
+    
+    let randomColor = Math.floor(Math.random() * 4);
+    order.push(randomColor);
+    clickedOrder = [];
+    
+    isAcceptingInput = false; // Bloqueia clique do usuário enquanto mostra a sequência
+    playSequence();
 }
 
-function nextRound() {
-  round++;
-  roundDisplay.textContent = round;
-  playerSequence = [];
-  sequence.push(colors[Math.floor(Math.random() * 4)]);
-  showSequence();
-}
-
-function showSequence() {
-  let i = 0;
-  const interval = setInterval(() => {
-    highlight(sequence[i]);
-    i++;
-    if (i >= sequence.length) {
-      clearInterval(interval);
-      message.textContent = "Sua vez!";
+// Toca a sequência de cores
+const playSequence = () => {
+    let delay = 0;
+    for (let i = 0; i < order.length; i++) {
+        setTimeout(() => {
+            lightColor(order[i]);
+            // Libera o input após a última cor acender
+            if(i === order.length - 1) {
+                setTimeout(() => {
+                    isAcceptingInput = true;
+                    showMessage('Sua vez!', 'success');
+                }, 500);
+            }
+        }, delay);
+        delay += 800; // Tempo entre uma cor e outra
     }
-  }, 1000);
 }
 
-function highlight(color) {
-  const el = document.querySelector(`.${color}`);
-  el.style.opacity = "0.5";
-  playSound(color);
-  setTimeout(() => el.style.opacity = "1", 500);
+// Acende a cor e emite som
+const lightColor = (colorIndex) => {
+    const element = colors[colorIndex];
+    element.classList.add('light');
+    playSound(colorIndex);
+    
+    setTimeout(() => {
+        element.classList.remove('light');
+    }, 400); // Tempo que a cor fica acesa
 }
 
-document.querySelectorAll(".color").forEach(btn => {
-  btn.addEventListener("click", () => {
-    const color = btn.dataset.color;
-    playerSequence.push(color);
-    highlight(color);
-    checkMove(playerSequence.length - 1);
-  });
-});
+// Clique do usuário
+const clickColor = (colorIndex) => {
+    if (!isAcceptingInput) return;
+    
+    clickedOrder.push(colorIndex);
+    lightColor(colorIndex);
+    checkOrder();
+}
 
-// Checagem
-function checkMove(index) {
-  if (playerSequence[index] !== sequence[index]) {
-    playErrorSound();
-    message.textContent = "Você errou!";
-    finalScore.textContent = score;
+// Verifica se o usuário acertou
+const checkOrder = () => {
+    const currentClickIndex = clickedOrder.length - 1;
+    
+    if (clickedOrder[currentClickIndex] !== order[currentClickIndex]) {
+        gameOver();
+        return;
+    }
+    
+    if (clickedOrder.length === order.length) {
+        isAcceptingInput = false;
+        showMessage('Ótimo! Você acertou!', 'success');
+        setTimeout(nextLevel, 1500);
+    }
+}
 
+// Desafio 3 e 4: Tela de derrota e Botão Reiniciar
+const gameOver = () => {
+    isAcceptingInput = false;
+    board.classList.remove('active'); // Desativa cliques
+    playSound(4); // Som de erro
+    
+    showMessage(`Fim de Jogo! Você chegou à rodada ${round}.`, 'error');
+    restartBtn.classList.remove('hidden'); // Mostra botão de reiniciar
+    startBtn.disabled = false;
+    startBtn.style.opacity = '1';
+    
+    saveHighScore(); // Salva pontuação
+}
+
+// Atualiza placar na tela
+const updateScoreboard = () => {
+    roundDisplay.innerText = round < 10 ? `0${round}` : round;
+    scoreDisplay.innerText = score;
+}
+
+// Função utilitária para mudar a caixa de mensagem
+const showMessage = (text, type) => {
+    messageBox.innerText = text;
+    messageBox.className = `message-box ${type}`;
+}
+
+// Desafio 5: Salvar maior pontuação (LocalStorage)
+const saveHighScore = () => {
+    let highScore = localStorage.getItem('geniusHighScore') || 0;
     if (score > highScore) {
-      highScore = score;
-      localStorage.setItem("highScore", highScore);
+        localStorage.setItem('geniusHighScore', score);
+        highscoreDisplay.innerText = score;
     }
-    highScoreDisplay.textContent = highScore;
-
-    saveRanking(score);
-    gameOverScreen.style.display = "flex";
-    return;
-  }
-  if (playerSequence.length === sequence.length) {
-    score += 10;
-    scoreDisplay.textContent = score;
-    message.textContent = "Ótimo! Próxima rodada...";
-    setTimeout(nextRound, 1000);
-  }
 }
 
-// Ranking
-function updateRanking() {
-  rankingList.innerHTML = "";
-  let ranking = JSON.parse(localStorage.getItem("ranking")) || [];
-  ranking.sort((a, b) => b.score - a.score);
-
-  ranking.slice(0, 5).forEach((item, index) => {
-    const li = document.createElement("li");
-    li.textContent = `${index + 1}º - ${item.name}: ${item.score} pontos`;
-    rankingList.appendChild(li);
-  });
+// Carrega o recorde ao abrir a página
+const loadHighScore = () => {
+    let highScore = localStorage.getItem('geniusHighScore') || 0;
+    highscoreDisplay.innerText = highScore;
 }
 
-function saveRanking(score) {
-  let ranking = JSON.parse(localStorage.getItem("ranking")) || [];
-  const playerName = playerNameInput.value.trim() || "Jogador";
-  ranking.push({ name: playerName, score: score });
-  localStorage.setItem("ranking", JSON.stringify(ranking));
-  updateRanking();
-}
+// Event Listeners
+colors.forEach((btn, index) => {
+    btn.addEventListener('click', () => clickColor(index));
+});
 
-// Atualiza ranking ao carregar
-updateRanking();
+startBtn.addEventListener('click', playGame);
+restartBtn.addEventListener('click', playGame);
+
+// Inicializa
+loadHighScore();
