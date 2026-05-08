@@ -1,181 +1,113 @@
-// Variáveis de Estado do Jogo
 let order = [];
 let clickedOrder = [];
 let score = 0;
 let round = 0;
 let isAcceptingInput = false;
 
-// Elementos do DOM
+// Elementos
 const board = document.getElementById('genius-board');
-const blue = document.querySelector('.blue');
-const red = document.querySelector('.red');
-const green = document.querySelector('.green');
-const yellow = document.querySelector('.yellow');
+const colors = [document.querySelector('.green'), document.querySelector('.red'), document.querySelector('.yellow'), document.querySelector('.blue')];
 const startBtn = document.getElementById('start-btn');
-const restartBtn = document.getElementById('restart-btn');
 const roundDisplay = document.getElementById('round-display');
 const scoreDisplay = document.getElementById('score-display');
-const highscoreDisplay = document.getElementById('highscore-display');
-const messageBox = document.getElementById('message-box');
+const modal = document.getElementById('modal-game-over');
+const rankingList = document.getElementById('ranking-list');
 
-// Mapeamento de cores para os botões
-const colors = [green, red, yellow, blue];
-
-// Desafio 1: Sistema de Sons usando Web Audio API (Não requer arquivos MP3)
+// Som (Web Audio API)
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-const frequencies = [329.63, 261.63, 277.18, 415.30]; // E4, C4, C#4, G#4 (Frequências clássicas)
+const frequencies = [330, 260, 280, 420];
 
-function playSound(colorIndex) {
-    if(audioCtx.state === 'suspended') audioCtx.resume();
-    
-    const oscillator = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
-    
-    oscillator.type = 'sine';
-    // Se for erro (índice 4), toca som grave, senão toca a frequência da cor
-    oscillator.frequency.value = colorIndex === 4 ? 100 : frequencies[colorIndex];
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
-    
-    oscillator.start();
-    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.5);
-    oscillator.stop(audioCtx.currentTime + 0.5);
+function playSound(idx) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.frequency.value = idx === 'err' ? 100 : frequencies[idx];
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.5);
+    osc.stop(audioCtx.currentTime + 0.5);
 }
 
-// Lógica de Início de Jogo
-const playGame = () => {
-    order = [];
-    clickedOrder = [];
-    score = 0;
-    round = 0;
-    updateScoreboard();
-    restartBtn.classList.add('hidden');
+// Lógica do Jogo
+const startGame = () => {
+    order = []; score = 0; round = 0;
+    modal.classList.add('hidden');
     startBtn.disabled = true;
-    startBtn.style.opacity = '0.5';
-    board.classList.add('active'); // Ativa cliques
+    board.classList.add('active');
     nextLevel();
-}
+};
 
-// Avança para o próximo nível
 const nextLevel = () => {
     round++;
-    // Desafio 2: Pontuação (Ex: 50 pontos por rodada completada)
-    if(round > 1) score += 50; 
-    
-    updateScoreboard();
-    showMessage(`Rodada ${round}! Atenção à sequência...`, 'neutral');
-    
-    let randomColor = Math.floor(Math.random() * 4);
-    order.push(randomColor);
+    roundDisplay.innerText = round < 10 ? `0${round}` : round;
+    scoreDisplay.innerText = score;
+    order.push(Math.floor(Math.random() * 4));
     clickedOrder = [];
-    
-    isAcceptingInput = false; // Bloqueia clique do usuário enquanto mostra a sequência
+    isAcceptingInput = false;
     playSequence();
-}
+};
 
-// Toca a sequência de cores
 const playSequence = () => {
-    let delay = 0;
-    for (let i = 0; i < order.length; i++) {
+    order.forEach((colorIdx, i) => {
         setTimeout(() => {
-            lightColor(order[i]);
-            // Libera o input após a última cor acender
-            if(i === order.length - 1) {
-                setTimeout(() => {
-                    isAcceptingInput = true;
-                    showMessage('Sua vez!', 'success');
-                }, 500);
-            }
-        }, delay);
-        delay += 800; // Tempo entre uma cor e outra
-    }
-}
+            lightUp(colorIdx);
+            if (i === order.length - 1) isAcceptingInput = true;
+        }, i * 800);
+    });
+};
 
-// Acende a cor e emite som
-const lightColor = (colorIndex) => {
-    const element = colors[colorIndex];
-    element.classList.add('light');
-    playSound(colorIndex);
-    
-    setTimeout(() => {
-        element.classList.remove('light');
-    }, 400); // Tempo que a cor fica acesa
-}
+const lightUp = (idx) => {
+    colors[idx].classList.add('light');
+    playSound(idx);
+    setTimeout(() => colors[idx].classList.remove('light'), 400);
+};
 
-// Clique do usuário
-const clickColor = (colorIndex) => {
+const handleBtnClick = (idx) => {
     if (!isAcceptingInput) return;
+    clickedOrder.push(idx);
+    lightUp(idx);
     
-    clickedOrder.push(colorIndex);
-    lightColor(colorIndex);
-    checkOrder();
-}
-
-// Verifica se o usuário acertou
-const checkOrder = () => {
-    const currentClickIndex = clickedOrder.length - 1;
-    
-    if (clickedOrder[currentClickIndex] !== order[currentClickIndex]) {
+    const currentIdx = clickedOrder.length - 1;
+    if (clickedOrder[currentIdx] !== order[currentIdx]) {
         gameOver();
         return;
     }
     
     if (clickedOrder.length === order.length) {
+        score += 10;
         isAcceptingInput = false;
-        showMessage('Ótimo! Você acertou!', 'success');
-        setTimeout(nextLevel, 1500);
+        setTimeout(nextLevel, 1000);
     }
-}
+};
 
-// Desafio 3 e 4: Tela de derrota e Botão Reiniciar
 const gameOver = () => {
-    isAcceptingInput = false;
-    board.classList.remove('active'); // Desativa cliques
-    playSound(4); // Som de erro
-    
-    showMessage(`Fim de Jogo! Você chegou à rodada ${round}.`, 'error');
-    restartBtn.classList.remove('hidden'); // Mostra botão de reiniciar
+    playSound('err');
+    board.classList.remove('active');
+    document.getElementById('final-score').innerText = score;
+    modal.classList.remove('hidden');
     startBtn.disabled = false;
-    startBtn.style.opacity = '1';
-    
-    saveHighScore(); // Salva pontuação
-}
+};
 
-// Atualiza placar na tela
-const updateScoreboard = () => {
-    roundDisplay.innerText = round < 10 ? `0${round}` : round;
-    scoreDisplay.innerText = score;
-}
+// Ranking (LocalStorage)
+const saveRanking = () => {
+    const name = document.getElementById('player-name').value || "Anônimo";
+    let ranking = JSON.parse(localStorage.getItem('geniusRanking')) || [];
+    ranking.push({ name, score });
+    ranking.sort((a, b) => b.score - a.score);
+    localStorage.setItem('geniusRanking', JSON.stringify(ranking.slice(0, 5)));
+    displayRanking();
+    modal.classList.add('hidden');
+};
 
-// Função utilitária para mudar a caixa de mensagem
-const showMessage = (text, type) => {
-    messageBox.innerText = text;
-    messageBox.className = `message-box ${type}`;
-}
+const displayRanking = () => {
+    const ranking = JSON.parse(localStorage.getItem('geniusRanking')) || [];
+    rankingList.innerHTML = ranking.map(p => `<li class="ranking-item"><span>${p.name}</span><strong>${p.score}</strong></li>`).join('');
+};
 
-// Desafio 5: Salvar maior pontuação (LocalStorage)
-const saveHighScore = () => {
-    let highScore = localStorage.getItem('geniusHighScore') || 0;
-    if (score > highScore) {
-        localStorage.setItem('geniusHighScore', score);
-        highscoreDisplay.innerText = score;
-    }
-}
+// Eventos
+colors.forEach((btn, i) => btn.onclick = () => handleBtnClick(i));
+startBtn.onclick = startGame;
+document.getElementById('save-ranking-btn').onclick = saveRanking;
+document.getElementById('close-modal-btn').onclick = () => modal.classList.add('hidden');
 
-// Carrega o recorde ao abrir a página
-const loadHighScore = () => {
-    let highScore = localStorage.getItem('geniusHighScore') || 0;
-    highscoreDisplay.innerText = highScore;
-}
-
-// Event Listeners
-colors.forEach((btn, index) => {
-    btn.addEventListener('click', () => clickColor(index));
-});
-
-startBtn.addEventListener('click', playGame);
-restartBtn.addEventListener('click', playGame);
-
-// Inicializa
-loadHighScore();
+window.onload = displayRanking;

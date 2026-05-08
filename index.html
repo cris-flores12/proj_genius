@@ -3,22 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogo Genius | Programação Website I</title>
-    <link rel="stylesheet" href="CSS/style.css">
+    <title>Jogo Genius | Progr. Website I</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <nav class="navbar">
-        <div class="logo">
-            <span class="icon">🧠</span> Jogo <span>Genius</span>
-        </div>
-        <div class="nav-links">
-            <a href="#" class="active">Início</a>
-            <a href="#">Como Jogar</a>
-            <a href="#">Ranking</a>
-            <a href="#">Sobre</a>
-        </div>
+        <div class="logo">🧠 Jogo <span>Genius</span></div>
         <div class="nav-actions">
-            <button id="theme-toggle">🌙</button>
             <button id="start-btn">▶ Iniciar Jogo</button>
         </div>
     </nav>
@@ -32,66 +23,38 @@
                 <div class="color-btn blue" data-color="3"></div>
                 <div class="center-circle">
                     <h2>GENIUS</h2>
-                    <span class="center-icon">🧠</span>
                 </div>
-            </div>
-            
-            <div class="hint-box">
-                <span class="hint-icon">💡</span>
-                <p>Observe a sequência de cores que o jogo vai mostrar.<br>Depois, repita clicando nas cores na mesma ordem!</p>
             </div>
         </section>
 
         <aside class="info-section">
             <div class="panel score-panel">
-                <div class="panel-header">
-                    <span class="panel-icon">🏆</span> PLACAR
-                </div>
                 <div class="score-display">
-                    <div class="score-item">
-                        <span>RODADA</span>
-                        <strong id="round-display">00</strong>
-                    </div>
-                    <div class="score-item">
-                        <span>PONTOS</span>
-                        <strong id="score-display">0</strong>
-                    </div>
-                    <div class="score-item">
-                        <span>RECORDE</span>
-                        <strong id="highscore-display">0</strong>
-                    </div>
+                    <div class="score-item"><span>RODADA</span><strong id="round-display">00</strong></div>
+                    <div class="score-item"><span>PONTOS</span><strong id="score-display">0</strong></div>
                 </div>
             </div>
 
-            <div class="panel message-panel">
-                <div class="panel-header">
-                    <span class="panel-icon">💬</span> MENSAGEM
-                </div>
-                <div id="message-box" class="message-box neutral">
-                    Clique em "Iniciar Jogo" para começar!
-                </div>
-                <button id="restart-btn" class="hidden">🔄 Reiniciar Jogo</button>
-            </div>
-
-            <div class="panel instructions-panel">
-                <div class="panel-header">
-                    <span class="panel-icon">❓</span> COMO JOGAR
-                </div>
-                <ul class="instructions-list">
-                    <li><span class="step-num">1</span> Clique em "Iniciar Jogo" para começar.</li>
-                    <li><span class="step-num">2</span> Observe a sequência de cores.</li>
-                    <li><span class="step-num">3</span> Repita a sequência clicando nas cores.</li>
-                    <li><span class="step-num">4</span> Cada rodada adiciona uma nova cor.</li>
-                    <li><span class="step-num">5</span> Errou? O jogo termina!</li>
-                </ul>
+            <div class="panel ranking-panel">
+                <div class="panel-header">🏆 RANKING TOP 5</div>
+                <ul id="ranking-list" class="ranking-list"></ul>
             </div>
         </aside>
     </main>
 
-    <footer>
-        <p>&copy; 2024 Jogo Genius. Desenvolvido para Programação Website I.</p>
-    </footer>
+    <div id="modal-game-over" class="modal hidden">
+        <div class="modal-content">
+            <img src="https://cdn-icons-png.flaticon.com/512/11514/11514488.png" alt="Derrota" class="defeat-img">
+            <h2>Você Perdeu!</h2>
+            <p>Pontuação: <span id="final-score">0</span></p>
+            <div class="input-group">
+                <input type="text" id="player-name" maxlength="15" placeholder="Seu nome">
+                <button id="save-ranking-btn">Salvar no Ranking</button>
+            </div>
+            <button id="close-modal-btn">Tentar Novamente</button>
+        </div>
+    </div>
 
-    <script src="Script/script.js"></script>
+    <script src="js/script.js"></script>
 </body>
 </html>
