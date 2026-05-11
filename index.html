@@ -1,60 +1,85 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogo Genius | Progr. Website I</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>Genius Premium | Console</title>
+    <link rel="stylesheet" href="CSS/style.css">
 </head>
 <body>
     <nav class="navbar">
         <div class="logo">🧠 Jogo <span>Genius</span></div>
         <div class="nav-actions">
-            <button id="start-btn">▶ Iniciar Jogo</button>
+            <button id="start-btn" class="btn-primary">▶ Iniciar Jogo</button>
         </div>
     </nav>
 
-    <main class="container">
-        <section class="board-section">
-            <div class="genius-board" id="genius-board">
-                <div class="color-btn green" data-color="0"></div>
-                <div class="color-btn red" data-color="1"></div>
-                <div class="color-btn yellow" data-color="2"></div>
-                <div class="color-btn blue" data-color="3"></div>
+    <div class="main-container">
+        <section class="game-section">
+            <div class="genius-board">
+                <div class="pad green" data-color="0"></div>
+                <div class="pad red" data-color="1"></div>
+                <div class="pad yellow" data-color="2"></div>
+                <div class="pad blue" data-color="3"></div>
                 <div class="center-circle">
-                    <h2>GENIUS</h2>
+                    <span class="center-text">GENIUS</span>
                 </div>
             </div>
+            <div id="game-status" class="status-box">Pronto para começar?</div>
         </section>
 
-        <aside class="info-section">
-            <div class="panel score-panel">
-                <div class="score-display">
-                    <div class="score-item"><span>RODADA</span><strong id="round-display">00</strong></div>
-                    <div class="score-item"><span>PONTOS</span><strong id="score-display">0</strong></div>
+        <aside class="sidebar">
+            <div class="card card-placar">
+                <h3>🏆 PLACAR</h3>
+                <div class="stats">
+                    <div class="stat-item">
+                        <span>RODADA</span>
+                        <div id="round" class="value blue-text">00</div>
+                    </div>
+                    <div class="separator"></div>
+                    <div class="stat-item">
+                        <span>PONTOS</span>
+                        <div id="points" class="value purple-text">000</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="panel ranking-panel">
-                <div class="panel-header">🏆 RANKING TOP 5</div>
-                <ul id="ranking-list" class="ranking-list"></ul>
+            <div class="card card-ranking">
+                <h3>🥇 TOP 5 RANKING</h3>
+                <ul id="ranking-list" class="ranking-list">
+                    </ul>
+            </div>
+
+            <div class="card card-config">
+                <h3>⚙️ CONFIGURAÇÕES</h3>
+                <select id="difficulty" class="diff-select">
+                    <option value="normal">Dificuldade: Normal (Com Som)</option>
+                    <option value="dificil">Dificuldade: Difícil (Mudo)</option>
+                </select>
+                <button id="global-reset-btn" class="btn-restart">🔄 Reiniciar Partida</button>
             </div>
         </aside>
-    </main>
+    </div>
 
-    <div id="modal-game-over" class="modal hidden">
-        <div class="modal-content">
-            <img src="https://cdn-icons-png.flaticon.com/512/11514/11514488.png" alt="Derrota" class="defeat-img">
-            <h2>Você Perdeu!</h2>
-            <p>Pontuação: <span id="final-score">0</span></p>
+    <div id="game-over-screen" class="overlay">
+        <div class="modal">
+            <h2>Você errou!</h2>
+            <p>Sua pontuação final:</p>
+            <div id="final-score" class="value purple-text">000</div>
+            
             <div class="input-group">
-                <input type="text" id="player-name" maxlength="15" placeholder="Seu nome">
-                <button id="save-ranking-btn">Salvar no Ranking</button>
+                <label for="player-name">Salve seu nome no ranking:</label>
+                <input type="text" id="player-name" placeholder="Ex: ProPlayer" maxlength="12">
+                <button id="save-score-btn" class="btn-primary">💾 Salvar Recorde</button>
             </div>
-            <button id="close-modal-btn">Tentar Novamente</button>
+            
+            <div class="modal-footer">
+                <button id="restart-btn-modal" class="btn-primary">🔄 Tentar Novamente</button>
+                <button id="exit-btn-modal" class="btn-outline">🚪 Sair</button>
+            </div>
         </div>
     </div>
 
-    <script src="js/script.js"></script>
+    <script src="Script/script.js"></script>
 </body>
 </html>

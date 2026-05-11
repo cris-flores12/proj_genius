@@ -1,113 +1,124 @@
 let order = [];
 let clickedOrder = [];
 let score = 0;
-let round = 0;
-let isAcceptingInput = false;
+let playSound = true;
+let isPlaying = false;
+const gameSpeed = 600;
 
-// Elementos
-const board = document.getElementById('genius-board');
-const colors = [document.querySelector('.green'), document.querySelector('.red'), document.querySelector('.yellow'), document.querySelector('.blue')];
-const startBtn = document.getElementById('start-btn');
-const roundDisplay = document.getElementById('round-display');
-const scoreDisplay = document.getElementById('score-display');
-const modal = document.getElementById('modal-game-over');
-const rankingList = document.getElementById('ranking-list');
+const roundText = document.querySelector('#round');
+const pointsText = document.querySelector('#points');
+const statusBox = document.querySelector('#game-status');
+const rankingList = document.querySelector('#ranking-list');
+const pads = document.querySelectorAll('.pad');
+const gameOverScreen = document.querySelector('#game-over-screen');
 
-// Som (Web Audio API)
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-const frequencies = [330, 260, 280, 420];
-
-function playSound(idx) {
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.frequency.value = idx === 'err' ? 100 : frequencies[idx];
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.5);
-    osc.stop(audioCtx.currentTime + 0.5);
-}
-
-// Lógica do Jogo
-const startGame = () => {
-    order = []; score = 0; round = 0;
-    modal.classList.add('hidden');
-    startBtn.disabled = true;
-    board.classList.add('active');
-    nextLevel();
+const audio = {
+    0: new Audio('https://s3.amazonaws.com/freecodecamp/simonSound1.mp3'),
+    1: new Audio('https://s3.amazonaws.com/freecodecamp/simonSound2.mp3'),
+    2: new Audio('https://s3.amazonaws.com/freecodecamp/simonSound3.mp3'),
+    3: new Audio('https://s3.amazonaws.com/freecodecamp/simonSound4.mp3'),
+    error: new Audio('https://www.myinstants.com/media/sounds/wrong-answer-buzzer.mp3')
 };
 
-const nextLevel = () => {
-    round++;
-    roundDisplay.innerText = round < 10 ? `0${round}` : round;
-    scoreDisplay.innerText = score;
-    order.push(Math.floor(Math.random() * 4));
-    clickedOrder = [];
-    isAcceptingInput = false;
-    playSequence();
+const getRanking = () => JSON.parse(localStorage.getItem('geniusRanking')) || [];
+
+const renderRanking = () => {
+    const ranking = getRanking();
+    rankingList.innerHTML = ranking.length > 0 
+        ? ranking.map((item, i) => `<li class="ranking-item"><span>${i+1}. <b>${item.name}</b></span><span>${item.score} pts</span></li>`).join('')
+        : `<li class="ranking-item">Aguardando heróis...</li>`;
+};
+
+const saveToRanking = (name, score) => {
+    let ranking = getRanking();
+    ranking.push({ name: name || "Anônimo", score });
+    ranking.sort((a, b) => b.score - a.score);
+    localStorage.setItem('geniusRanking', JSON.stringify(ranking.slice(0, 5)));
+    renderRanking();
+};
+
+const lightUp = (color) => {
+    const el = document.querySelector(`[data-color="${color}"]`);
+    el.classList.add('active');
+    if (playSound) { audio[color].currentTime = 0; audio[color].play(); }
+    setTimeout(() => el.classList.remove('active'), gameSpeed);
 };
 
 const playSequence = () => {
-    order.forEach((colorIdx, i) => {
-        setTimeout(() => {
-            lightUp(colorIdx);
-            if (i === order.length - 1) isAcceptingInput = true;
-        }, i * 800);
-    });
+    isPlaying = false;
+    statusBox.innerText = "Observe...";
+    statusBox.style.color = "#a855f7";
+    let i = 0;
+    const interval = setInterval(() => {
+        lightUp(order[i]);
+        i++;
+        if (i >= order.length) {
+            clearInterval(interval);
+            setTimeout(() => { 
+                statusBox.innerText = "Sua vez!"; 
+                statusBox.style.color = "#4ade80";
+                isPlaying = true; 
+            }, 500);
+        }
+    }, gameSpeed + 200);
 };
 
-const lightUp = (idx) => {
-    colors[idx].classList.add('light');
-    playSound(idx);
-    setTimeout(() => colors[idx].classList.remove('light'), 400);
-};
-
-const handleBtnClick = (idx) => {
-    if (!isAcceptingInput) return;
-    clickedOrder.push(idx);
-    lightUp(idx);
-    
-    const currentIdx = clickedOrder.length - 1;
-    if (clickedOrder[currentIdx] !== order[currentIdx]) {
-        gameOver();
-        return;
-    }
-    
-    if (clickedOrder.length === order.length) {
-        score += 10;
-        isAcceptingInput = false;
-        setTimeout(nextLevel, 1000);
-    }
+const nextRound = () => {
+    score++;
+    roundText.innerText = score.toString().padStart(2, '0');
+    pointsText.innerText = ((score - 1) * 50).toString().padStart(3, '0');
+    clickedOrder = [];
+    order.push(Math.floor(Math.random() * 4));
+    playSequence();
 };
 
 const gameOver = () => {
-    playSound('err');
-    board.classList.remove('active');
-    document.getElementById('final-score').innerText = score;
-    modal.classList.remove('hidden');
-    startBtn.disabled = false;
+    if (playSound) audio.error.play();
+    document.querySelector('#final-score').innerText = pointsText.innerText;
+    gameOverScreen.style.display = 'flex';
+    isPlaying = false;
 };
 
-// Ranking (LocalStorage)
-const saveRanking = () => {
-    const name = document.getElementById('player-name').value || "Anônimo";
-    let ranking = JSON.parse(localStorage.getItem('geniusRanking')) || [];
-    ranking.push({ name, score });
-    ranking.sort((a, b) => b.score - a.score);
-    localStorage.setItem('geniusRanking', JSON.stringify(ranking.slice(0, 5)));
-    displayRanking();
-    modal.classList.add('hidden');
+const initGame = () => {
+    order = [];
+    score = 0;
+    clickedOrder = [];
+    gameOverScreen.style.display = 'none';
+    document.querySelector('#save-score-btn').disabled = false;
+    document.querySelector('#save-score-btn').innerText = "💾 Salvar Recorde";
+    playSound = document.querySelector('#difficulty').value === 'normal';
+    nextRound();
 };
 
-const displayRanking = () => {
-    const ranking = JSON.parse(localStorage.getItem('geniusRanking')) || [];
-    rankingList.innerHTML = ranking.map(p => `<li class="ranking-item"><span>${p.name}</span><strong>${p.score}</strong></li>`).join('');
+pads.forEach(pad => {
+    pad.onclick = () => {
+        if (!isPlaying) return;
+        const color = parseInt(pad.dataset.color);
+        lightUp(color);
+        clickedOrder.push(color);
+        
+        const i = clickedOrder.length - 1;
+        if (clickedOrder[i] !== order[i]) return gameOver();
+        if (clickedOrder.length === order.length) setTimeout(nextRound, 1000);
+    };
+});
+
+document.querySelector('#start-btn').onclick = initGame;
+document.querySelector('#global-reset-btn').onclick = initGame;
+document.querySelector('#restart-btn-modal').onclick = initGame;
+
+document.querySelector('#save-score-btn').onclick = function() {
+    const name = document.querySelector('#player-name').value;
+    saveToRanking(name, parseInt(pointsText.innerText));
+    this.disabled = true;
+    this.innerText = "Salvo!";
 };
 
-// Eventos
-colors.forEach((btn, i) => btn.onclick = () => handleBtnClick(i));
-startBtn.onclick = startGame;
-document.getElementById('save-ranking-btn').onclick = saveRanking;
-document.getElementById('close-modal-btn').onclick = () => modal.classList.add('hidden');
-
-window.onload = displayRanking;
+document.querySelector('#exit-btn-modal').onclick = () => {
+    gameOverScreen.style.display = 'none';
+    statusBox.innerText = "Aguardando início...";
+    statusBox.style.color = "#4ade80";
+    roundText.innerText = "00";
+    pointsText.innerText = "000";
+};
+renderRanking();
